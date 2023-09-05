@@ -1,8 +1,10 @@
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { User } from 'src/app/models/user';
+import { UserService } from 'src/app/services/user.service';
 declare var handleSignOut: any;
 
 export interface UserData {
@@ -50,19 +52,27 @@ const NAMES: string[] = [
   templateUrl: './bday-list.component.html',
   styleUrls: ['./bday-list.component.scss'],
 })
-export class BdayListComponent {
-  displayedColumns: string[] = ['id', 'name', 'progress', 'fruit'];
+export class BdayListComponent implements OnInit, AfterViewInit {
+  displayedColumns: string[] = ['Name', 'Birthday', 'Likes', 'fruit'];
   dataSource!: MatTableDataSource<UserData>;
+  user: User | null = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private userService: UserService) {
     // Create 100 users
     const users = Array.from({ length: 100 }, (_, k) => createNewUser(k + 1));
 
     // Assign the data to the data source for the table to render
     this.dataSource = new MatTableDataSource(users);
+  }
+
+  ngOnInit(): void {
+    this.userService.getUser().subscribe((user: User | null) => {
+      this.user = user;
+      console.log(this.user);
+    });
   }
 
   ngAfterViewInit() {

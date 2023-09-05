@@ -1,5 +1,5 @@
 export interface BdayItem {
-  id: string;
+  id?: string;
   name: string;
   birthday: Date;
   likes?: string[];
