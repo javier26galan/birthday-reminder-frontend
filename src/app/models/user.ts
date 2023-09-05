@@ -1,7 +1,9 @@
-import { BdayItem } from "./bday-item";
+import { BdayItem } from './bday-item';
 
 export interface User {
-  name: string;
-  bdayList: BdayItem[];
-  id:string;
+  profilename: string;
+  email: string;
+  bdaylist: BdayItem[];
+  id: string;
+  image:string;
 }
