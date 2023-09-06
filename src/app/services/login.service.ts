@@ -36,7 +36,6 @@ export class LoginService {
           id: response._id,
           image: response.image,
         };
-        this.authservice.login();
         this.userService.updateUser(user);
         localStorage.setItem('user', JSON.stringify(user));
       });

@@ -3,8 +3,13 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { BdayItem } from 'src/app/models/bday-item';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
+import { BdayItemDialogComponent } from '../bday-item-dialog/bday-item-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { BdayService } from '../bday.service';
 declare var handleSignOut: any;
 
 export interface UserData {
@@ -53,26 +58,39 @@ const NAMES: string[] = [
   styleUrls: ['./bday-list.component.scss'],
 })
 export class BdayListComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['Name', 'Birthday', 'Likes', 'fruit'];
-  dataSource!: MatTableDataSource<UserData>;
+  displayedColumns: string[] = ['Name', 'Birthday', 'Likes', 'Actions'];
+  dataSource!: MatTableDataSource<BdayItem>;
   user: User | null = null;
+  bdayList: BdayItem[] | undefined;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private router: Router, private userService: UserService) {
-    // Create 100 users
-    const users = Array.from({ length: 100 }, (_, k) => createNewUser(k + 1));
-
+  constructor(
+    private router: Router,
+    private userService: UserService,
+    private bdayService: BdayService,
+    private dialog: MatDialog // public dialogRef: MatDialogRef<DialogAnimationsExampleDialog>
+  ) {
     // Assign the data to the data source for the table to render
-    this.dataSource = new MatTableDataSource(users);
+    this.dataSource = new MatTableDataSource(this.user?.bdaylist);
   }
 
   ngOnInit(): void {
     this.userService.getUser().subscribe((user: User | null) => {
       this.user = user;
-      console.log(this.user);
+      this.bdayList = user?.bdaylist;
+      if (this.bdayList) {
+        this.dataSource.data = this.bdayList;
+      }
     });
+    // this.bdayService.getBdayList().subscribe((bdayList:any) => {
+    //   // Actualiza la lista de cumpleaños en el componente
+    //   this.bdayList = bdayList;
+    //   this.dataSource.data = this.bdayList ;
+    // });
+    console.log(this.user);
+    console.log(this.bdayList);
   }
 
   ngAfterViewInit() {
@@ -89,6 +107,28 @@ export class BdayListComponent implements OnInit, AfterViewInit {
     }
   }
 
+  editBdayItem(bdayItemId: string) {
+    // Aquí puedes abrir un cuadro de diálogo de edición o redirigir a una página de edición
+    // Puedes pasar el objeto bdayItem a la página de edición para realizar las modificaciones.
+  }
+
+  deleteBdayItem(bdayItemId: string) {
+    console.log(bdayItemId);
+    this.bdayService.deleteBdayItem(this.user!.id, bdayItemId).subscribe((response)=>{
+      console.log("bday-listdelete",response);
+      const user = {
+        id: response._id,
+        profilename: response.profilename,
+        email: response.email,
+        image: response.image,
+        bdaylist: response.bdaylist,
+      };
+      console.log("bday-list user",user);
+
+      this.userService.setUser(user as User);
+    })
+  }
+
   onSignOut() {
     handleSignOut();
     localStorage.removeItem('user');
@@ -96,19 +136,17 @@ export class BdayListComponent implements OnInit, AfterViewInit {
       window.location.reload();
     });
   }
-}
 
-function createNewUser(id: number): UserData {
-  const name =
-    NAMES[Math.round(Math.random() * (NAMES.length - 1))] +
-    ' ' +
-    NAMES[Math.round(Math.random() * (NAMES.length - 1))].charAt(0) +
-    '.';
+  openBdayItemDialog() {
+    const dialogRef = this.dialog.open(BdayItemDialogComponent, {
+      width: '400px', // Personaliza el ancho según tus necesidades
+    });
 
-  return {
-    id: id.toString(),
-    name: name,
-    progress: Math.round(Math.random() * 100).toString(),
-    fruit: FRUITS[Math.round(Math.random() * (FRUITS.length - 1))],
-  };
+    dialogRef.afterClosed().subscribe((result: BdayItem) => {
+      if (result) {
+        // Aquí puedes agregar lógica para agregar el nuevo cumpleaños a tu lista
+        console.log('Nuevo cumpleaños:', result);
+      }
+    });
+  }
 }

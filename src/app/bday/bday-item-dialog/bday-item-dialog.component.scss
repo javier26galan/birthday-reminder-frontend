@@ -1,0 +1,25 @@
+.mat-dialog-container {
+  padding: 16px; /* Espaciado interno del diálogo */
+  width: 90%; /* Ancho del diálogo */
+}
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.mat-dialog-button-container{
+  display: flex;
+  justify-content: space-between;
+}
+/* Estilo para los botones dentro del formulario */
+button {
+  margin: 8px;
+}

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { User } from '../models/user';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,9 @@ export class UserService {
   private userSubject: Subject<User | null> = new BehaviorSubject<User | null>(
     this.loadUserFromLocalStorage()
   );
-  user$: Observable<User | null> = this.userSubject.asObservable();
+  user$: Observable<User | null> = this.userSubject
+    .asObservable()
+    .pipe(shareReplay(1));
   constructor() {
     this.loadUserFromLocalStorage();
   }
@@ -35,8 +38,9 @@ export class UserService {
   }
 
   setUser(user: User | null) {
-    this.userSubject.next(user);
+    console.log("user seteado");
     localStorage.setItem('user', JSON.stringify(user));
+    this.userSubject.next(user);
   }
 
   clearUser() {
