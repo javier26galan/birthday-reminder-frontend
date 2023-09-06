@@ -22,22 +22,21 @@ export class BdayService {
   }
 
   postBdayItem(bdayItem: BdayItem) {
-    return this.userService.getUser().pipe(
-      switchMap((user: User | null) => {
-        if (!user) {
-          throw new Error('User id not exist');
-        }
-
-        // Realiza la solicitud POST con el ID del usuario
-        return this.http.post<any>(
-          `${this.apiUrl}/bdays/new/${user.id}`,
-          bdayItem
-        );
-      })
+    return this.http.post<any>(
+      `${this.apiUrl}/bdays/new/${this.user!.id}`,
+      bdayItem
     );
   }
 
-  deleteBdayItem(userId:string, bdayItemId:string) {
-    return this.http.delete<any>(`${this.apiUrl}/bdays/${userId}/${bdayItemId}`)
+  deleteBdayItem(userId: string, bdayItemId: string) {
+    return this.http.delete<any>(
+      `${this.apiUrl}/bdays/${userId}/${bdayItemId}`
+    );
+  }
+
+  updateBdaItem(userId: string, bdayItemId: string, bdayItem:BdayItem) {
+    return this.http.put<any>(
+      `${this.apiUrl}/bdays/${userId}/${bdayItemId}`, bdayItem
+    );
   }
 }

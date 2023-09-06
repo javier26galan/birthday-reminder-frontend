@@ -8,49 +8,9 @@ import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { BdayItemDialogComponent } from '../bday-item-dialog/bday-item-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
 import { BdayService } from '../bday.service';
+
 declare var handleSignOut: any;
-
-export interface UserData {
-  id: string;
-  name: string;
-  progress: string;
-  fruit: string;
-}
-
-/** Constants used to fill up our data base. */
-const FRUITS: string[] = [
-  'blueberry',
-  'lychee',
-  'kiwi',
-  'mango',
-  'peach',
-  'lime',
-  'pomegranate',
-  'pineapple',
-];
-const NAMES: string[] = [
-  'Maia',
-  'Asher',
-  'Olivia',
-  'Atticus',
-  'Amelia',
-  'Jack',
-  'Charlotte',
-  'Theodore',
-  'Isla',
-  'Oliver',
-  'Isabella',
-  'Jasper',
-  'Cora',
-  'Levi',
-  'Violet',
-  'Arthur',
-  'Mia',
-  'Thomas',
-  'Elizabeth',
-];
 
 @Component({
   selector: 'app-bday-list',
@@ -107,26 +67,25 @@ export class BdayListComponent implements OnInit, AfterViewInit {
     }
   }
 
-  editBdayItem(bdayItemId: string) {
-    // Aquí puedes abrir un cuadro de diálogo de edición o redirigir a una página de edición
-    // Puedes pasar el objeto bdayItem a la página de edición para realizar las modificaciones.
+  editBdayItem(bdayItem: BdayItem) {
+    console.log('edit', bdayItem);
+
+    this.openBdayItemDialog('update', bdayItem);
   }
 
   deleteBdayItem(bdayItemId: string) {
-    console.log(bdayItemId);
-    this.bdayService.deleteBdayItem(this.user!.id, bdayItemId).subscribe((response)=>{
-      console.log("bday-listdelete",response);
-      const user = {
-        id: response._id,
-        profilename: response.profilename,
-        email: response.email,
-        image: response.image,
-        bdaylist: response.bdaylist,
-      };
-      console.log("bday-list user",user);
-
-      this.userService.setUser(user as User);
-    })
+    this.bdayService
+      .deleteBdayItem(this.user!.id, bdayItemId)
+      .subscribe((response) => {
+        const user = {
+          id: response._id,
+          profilename: response.profilename,
+          email: response.email,
+          image: response.image,
+          bdaylist: response.bdaylist,
+        };
+        this.userService.setUser(user as User);
+      });
   }
 
   onSignOut() {
@@ -137,16 +96,10 @@ export class BdayListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  openBdayItemDialog() {
+  openBdayItemDialog(mode: string, bdayItem?: BdayItem) {
     const dialogRef = this.dialog.open(BdayItemDialogComponent, {
-      width: '400px', // Personaliza el ancho según tus necesidades
-    });
-
-    dialogRef.afterClosed().subscribe((result: BdayItem) => {
-      if (result) {
-        // Aquí puedes agregar lógica para agregar el nuevo cumpleaños a tu lista
-        console.log('Nuevo cumpleaños:', result);
-      }
+      width: '400px',
+      data: { mode: mode, bdayItem: bdayItem }, // Personaliza el ancho según tus necesidades
     });
   }
 }
